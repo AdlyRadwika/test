@@ -23,13 +23,9 @@ class UniversityProvider extends ChangeNotifier {
 
   List<UniversityModel> get university => _university;
 
-  List<UniversityModel> get universitySearch => _universitySearch;
-
   UniversityModel get detail => _detail;
 
   ProviderState get state => _state;
-
-  ProviderState get searchState => _searchState;
 
   void getUniversityDetail({required UniversityModel data}) {
     _detail = data;
@@ -66,7 +62,7 @@ class UniversityProvider extends ChangeNotifier {
         return university;
       }
       return [];
-    } catch (e) {
+    } on Exception catch (e) {
       _message = e.toString();
       return [];
     }
@@ -84,7 +80,6 @@ class SearchUniversityProvider extends ChangeNotifier {
 
   String get message => _message;
 
-
   List<UniversityModel> get universitySearch => _universitySearch;
 
   UniversityModel get detail => _detail;
@@ -101,17 +96,23 @@ class SearchUniversityProvider extends ChangeNotifier {
       _searchState = ProviderState.loading; 
       notifyListeners();
       final result = await apiService.searchUniversity(query: query, page: pageKey);
-      if (result.isEmpty) {
+      if (result.isEmpty || result == []) {
         _searchState = ProviderState.empty;
         _message = 'The list is empty';
+        notifyListeners();
       } else {
         _searchState = ProviderState.loaded;
-        return _universitySearch = result;
+        _universitySearch = result;
+        notifyListeners();
+        return _universitySearch;
       }
-      notifyListeners();
-    } catch (e) {
+    } on Exception catch (e) {
       _searchState = ProviderState.error;
       _message = e.toString();
+      notifyListeners();
+    } catch (stacktrace) {
+      _searchState = ProviderState.error;
+      _message = stacktrace.toString();
       notifyListeners();
     }
   }

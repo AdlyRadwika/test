@@ -25,10 +25,8 @@ class UniversityRepository {
   }
 
   Future<List<UniversityModel>> searchUniversity({required String query, int page = 0}) async {
-    print('query: $query');
     final response = await client.get("$_baseUrl&$_name=$query&$_limit&$_offset=$page");
     if (response.statusCode == 200) {
-      print(response);
       final json = response.data;
       List<UniversityModel> data = (json as List).map((item) => UniversityModel.fromJson(item)).toList();
       return data;
